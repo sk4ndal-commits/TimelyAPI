@@ -10,7 +10,7 @@ public class Goal
 {
     // ids
     [Key]
-    public string Id { get; set; } = null!;
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     
     [Required]
     public string UserId { get; set; } = null!;

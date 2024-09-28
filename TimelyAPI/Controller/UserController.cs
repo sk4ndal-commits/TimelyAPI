@@ -1,6 +1,8 @@
 // Controllers/UserController.cs
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using TimelyAPI.Dtos;
 using TimelyAPI.Models;
 using TimelyAPI.Services;
 
@@ -11,16 +13,22 @@ namespace TimelyAPI.Controller;
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;
+    private readonly PasswordHasher<User> _passwordHasher;
 
     public UserController(UserService userService)
     {
         _userService = userService;
+        _passwordHasher = new PasswordHasher<User>();
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(User user, string password)
+    public async Task<IActionResult> Register(
+        [FromBody] UserRegisterDto userRegisterDto)
     {
-        var result = await _userService.RegisterUser(user, password);
+
+        var user = CreateUser(userRegisterDto);
+
+        var result = await _userService.RegisterUser(user);
         if (result.Succeeded)
         {
             return Ok();
@@ -41,5 +49,16 @@ public class UserController : ControllerBase
         return Unauthorized();
     }
 
-    // CRUD Methods
+    private User CreateUser(UserRegisterDto userRegisterDto)
+    {
+        var user = new User
+        {
+            Email = userRegisterDto.Email,
+            UserName = userRegisterDto.UserName,
+        };
+
+        user.PasswordHash = _passwordHasher.HashPassword(user, 
+            userRegisterDto.Password);
+        return user;
+    }
 }

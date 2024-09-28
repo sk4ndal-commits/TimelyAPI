@@ -16,9 +16,9 @@ public class UserService
         _signInManager = signInManager;
     }
 
-    public async Task<IdentityResult> RegisterUser(User user, string password)
+    public async Task<IdentityResult> RegisterUser(User user)
     {
-        return await _userManager.CreateAsync(user, password);
+        return await _userManager.CreateAsync(user, user.PasswordHash!);
     }
 
     public async Task<SignInResult> LoginUser(string email, string password)
